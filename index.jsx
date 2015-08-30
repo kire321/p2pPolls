@@ -5,6 +5,8 @@ var React = require('react')
 import {Grid, Row, Col, Button} from 'react-bootstrap'
 require('bootstrap/dist/css/bootstrap.css')
 require('./custom.css')
+import QuestionList from './QuestionList.jsx'
+import NewQuestion from './NewQuestion.jsx'
 
 var myId = _.random(0, 99)
 console.log("myId", myId)
@@ -55,20 +57,63 @@ firstPeerPromise.then(function (firstPeer) {
     handleNewConnection(firstPeer, "outbound")
 })
 
-React.render(
-    <Grid>
-        <Row>
-            <Col sm={3}>
-                <Button bsStyle="primary" block className="foo">New Question</Button>
-                <Button block>What's your favorite kind of cheese?</Button>
-                <Button bsStyle="info" block>Do you like wizardry?</Button>
-                <Button block>How frequently do you experience headaches?</Button>
-            </Col>
-            <Col sm={9}>
-                Hello, world!
-            </Col>
-        </Row>
-    </Grid>
-    ,
-    document.body
-)
+var Index = React.createClass({
+    getInitialState() {
+        return {
+            'questions': {
+                'id1': {
+                    text: "Do you like wizardry?",
+                    answer: "yes",
+                    lastUpdated: 2,
+                    isSelected: false,
+                },
+                'id2': {
+                    text: "What is your favorite color?",
+                    answer: null,
+                    lastUpdated: 1,
+                    isSelected: true,
+                },
+                'id3': {
+                    text: "How's the weather?",
+                    answer: null,
+                    lastUpdated: 10,
+                    isSelected: false,
+                },
+            },
+            'activity': null,
+        }
+    },
+    deepSetState(newState) {
+        this.setState(_.merge(this.state, newState))
+    },
+    newQuestionClickHandler() {
+        this.deepSetState({activity: 'newQuestion'})
+    },
+    putNewQuestion(text) {
+        this.deepSetState({
+            activity: null,
+            questions: {
+                [_.random(1000000000)]: {
+                    text: text,
+                    answer: null,
+                    lastUpdated: Date.now(),
+                    isSelected: false,
+                },
+            }
+        })
+        console.log(this.state)
+    },
+    render() {
+        return <Grid>
+            <Row>
+                <QuestionList questions={this.state.questions} newQuestionClickHandler={this.newQuestionClickHandler}/>
+                {this.state.activity === 'newQuestion' && <NewQuestion
+                    putNewQuestion={this.putNewQuestion}
+                /> }
+                {this.state.activity !== 'newQuestion' && <Col sm={9}> Hello, world!</Col>}
+            </Row>
+        </Grid>
+    }
+})
+
+React.render(<Index />, document.body)
