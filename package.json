@@ -5,13 +5,22 @@
     "start": "webpack-dev-server --config webpack.config.js --progress --colors --inline --content-base ./build"
   },
   "devDependencies": {
+    "babel-core": "^5.8.23",
+    "babel-loader": "^5.3.2",
+    "css-loader": "^0.16.0",
+    "file-loader": "^0.8.4",
     "html-webpack-plugin": "^1.6.1",
+    "style-loader": "^0.12.3",
+    "url-loader": "^0.5.6",
     "webpack": "^1.12.0",
     "webpack-dev-server": "^1.10.1"
   },
   "dependencies": {
     "bluebird": "^2.9.34",
+    "bootstrap": "^3.3.5",
     "lodash": "^3.10.1",
-    "peerjs": "^0.3.14"
+    "peerjs": "^0.3.14",
+    "react": "^0.13.3",
+    "react-bootstrap": "^0.25.1"
   }
 }

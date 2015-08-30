@@ -1,6 +1,10 @@
 var Peer = require('peerjs')
 var Promise = require('bluebird')
 var _ = require('lodash')
+var React = require('react')
+import {Grid, Row, Col, Button} from 'react-bootstrap'
+require('bootstrap/dist/css/bootstrap.css')
+require('./custom.css')
 
 var myId = _.random(0, 99)
 console.log("myId", myId)
@@ -18,7 +22,7 @@ function handleNewConnection(conn, source) {
         conn.send("hello")
     // }, 1000)
     conn.on('close', function() {
-        clearInterval(interval)
+        console.log("conn closed")
     })
 }
 
@@ -51,4 +55,20 @@ firstPeerPromise.then(function (firstPeer) {
     handleNewConnection(firstPeer, "outbound")
 })
 
-document.body.textContent = "Hello World!"
+React.render(
+    <Grid>
+        <Row>
+            <Col sm={3}>
+                <Button bsStyle="primary" block className="foo">New Question</Button>
+                <Button block>What's your favorite kind of cheese?</Button>
+                <Button bsStyle="info" block>Do you like wizardry?</Button>
+                <Button block>How frequently do you experience headaches?</Button>
+            </Col>
+            <Col sm={9}>
+                Hello, world!
+            </Col>
+        </Row>
+    </Grid>
+    ,
+    document.body
+)
