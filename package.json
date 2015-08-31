@@ -16,8 +16,10 @@
     "webpack-dev-server": "^1.10.1"
   },
   "dependencies": {
+    "baconjs": "^0.7.71",
     "bluebird": "^2.9.34",
     "bootstrap": "^3.3.5",
+    "deep-equal": "^1.0.1",
     "lodash": "^3.10.1",
     "peerjs": "^0.3.14",
     "react": "^0.13.3",
