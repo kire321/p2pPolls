@@ -1,9 +1,8 @@
-import {Grid, Row, Col, Button} from 'react-bootstrap'
+import {Grid, Row, Col, Button, Input} from 'react-bootstrap'
 var _ = require('lodash')
 var React = require('react')
 require('bootstrap/dist/css/bootstrap.css')
 require('./custom.css')
-import QuestionList from './QuestionList.jsx'
 import NewQuestion from './NewQuestion.jsx'
 
 export default React.createClass({
@@ -15,11 +14,11 @@ export default React.createClass({
                     isSelected: false,
                 },
                 id2: {
-                    answer: null,
+                    answer: '',
                     isSelected: true,
                 },
                 id3: {
-                    answer: null,
+                    answer: '',
                     isSelected: false,
                 },
             },
@@ -39,43 +38,92 @@ export default React.createClass({
             activity: null,
             questions: {
                 [id]: {
-                    answer: null,
+                    answer: '',
                     isSelected: false,
                 },
             }
         })
     },
     componentWillReceiveProps(nextProps) {
-        console.log('np', nextProps)
-        var sharedKeys = _.union(_.keys(nextProps.shared.text), _.keys(nextProps.shared.lastUpdated))
-        console.log('existing keys', _.without(sharedKeys, ..._.keys(this.state.questions)))
+        var sharedKeys = _.union(_.keys(nextProps.shared.text), _.keys(nextProps.shared.lastUpdated), _.keys(nextProps.shared.answers))
         var missingKeys = _(sharedKeys)
             .without(..._.keys(this.state.questions))
             .map((id) => [id, {
-                answer: null,
+                answer: '',
                 isSelected: false,
             }])
             .zipObject()
             .value()
-        console.log('mk', missingKeys)
         this.deepSetState({
             questions: missingKeys
         })
 
     },
+    onAnswerFactory(ref) {
+        return () => {
+            var answer = this.refs[ref].getValue().trim()
+            var selectedId = _.findKey(this.state.questions, 'isSelected')
+            this.deepSetState({
+                questions: {
+                    [selectedId]: {
+                        answer: answer
+                    }
+                }
+            })
+            this.props.putAnswer(selectedId, answer)
+        }
+    },
+    onSelectFactory(id) {
+        return () => this.deepSetState({
+            questions: {
+                [id]: {
+                    isSelected: true
+                },
+                [_.findKey(this.state.questions, 'isSelected')]: {
+                    isSelected: false
+                }
+            }
+        })
+    },
     render() {
-        console.log('local', this.state, this.props)
         var questions = _.mapValues(this.state.questions, (value, key) => _.merge(value, {
             text: this.props.shared.text[key],
             lastUpdated: this.props.shared.lastUpdated[key],
+            answers: this.props.shared.answers[key],
         }))
+        var selected = _.find(questions, 'isSelected')
+        var split = _(questions)
+            .mapValues((value, key) => _.merge(value, {id: key}))
+            .values()
+            .groupBy((question) => question.answer === '')
+            .mapValues((questions) => _.sortBy(questions, 'lastUpdated').reverse())
+            .value()
+        var answered = split[false] ? split[false] : []
+        var sorted = split[true] ? split[true].concat(split[false]) : answered
         return <Grid>
             <Row>
-                <QuestionList questions={questions} newQuestionClickHandler={this.newQuestionClickHandler}/>
+                <Col sm={3}>
+                    <Button bsStyle="primary" block onClick={this.newQuestionClickHandler}>New Question</Button>
+                    {
+                        sorted.map((question, index) => {
+                            if (question.isSelected) {
+                                return <Button key={index} bsStyle="info" block>{question.text}</Button>
+                            } else {
+                                return <Button key={index} block onClick={this.onSelectFactory(question.id)}>{question.text}</Button>
+                            }
+                        })
+                    }
+                </Col>
                 {this.state.activity === 'newQuestion' && <NewQuestion
                     putNewQuestion={this.putNewQuestion}
                 /> }
-                {this.state.activity !== 'newQuestion' && <Col sm={9}> Hello, world!</Col>}
+                {this.state.activity !== 'newQuestion' && <Col sm={9}>
+                    <h3>Your answer: {selected.answer}</h3>
+                    <Input type="text" ref="textInput" onBlur={this.onAnswerFactory("textInput")} label="Submit a custom answer"/>
+                    <Input type="select" ref="selection" onBlur={this.onAnswerFactory("selection")} label="or reuse a previous one">
+                        {selected.answers.map((answer, index) => (<option value={answer} key={index}>{answer}</option>))}
+                    </Input>
+                </Col>}
             </Row>
         </Grid>
     }

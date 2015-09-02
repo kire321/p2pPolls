@@ -31,6 +31,11 @@ export const Shared = React.createClass({
                 id1: 2,
                 id2: 1,
                 id3: 10,
+            },
+            answers: {
+                id1: ['yes', 'no'],
+                id2: [],
+                id3: ['rainy', 'sunny', 'good']
             }
         }
     },
@@ -44,10 +49,21 @@ export const Shared = React.createClass({
             }
         })
     },
+    putAnswer(id, answer) {
+        this.deepSetState({
+            answers: {
+                [id]: this.state.answers[id].concat([answer])
+            },
+            lastUpdated: {
+                [id]: Date.now(),
+            }
+        })
+    },
     render() {
         return <Local
             shared={this.state}
             putNewQuestion={this.putNewQuestion}
+            putAnswer={this.putAnswer}
         />
     }
 })

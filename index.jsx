@@ -4,7 +4,8 @@ var _ = require('lodash')
 var React = require('react')
 import {Shared, peerStates} from './Shared.jsx'
 
-var myId = _.random(0, 99)
+var possibleIdCount = 10
+var myId = _.random(0, possibleIdCount - 1)
 console.log("myId", myId)
 var connections = []
 function getConnections() {
@@ -14,7 +15,8 @@ function getConnections() {
 var firstConnectionPromiseResolve
 var firstConnectionPromise = new Promise((resolve, reject) => firstConnectionPromiseResolve = resolve)
 var shared = <Shared getConnections={getConnections}/>
-firstConnectionPromise.then(() => React.render(shared, document.body))
+// firstConnectionPromise.then(() => React.render(shared, document.body))
+React.render(shared, document.body)
 
 function handleNewConnection(conn, source) {
     conn.on('data', function(data) {
@@ -54,7 +56,7 @@ function connect(id) {
     })
 }
 
-var candidates = _.range(100).map(connect)
+var candidates = _.range(possibleIdCount).map(connect)
 var firstOutboundPromise = Promise.any(candidates)
 firstOutboundPromise.then(function (firstPeer) {
     console.log("i have friends!!")
